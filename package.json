@@ -1,0 +1,45 @@
+{
+  "name": "@mariopaglia/linux-dev-setup",
+  "version": "3.0.0",
+  "description": "Script automatizado para configurar ambiente de desenvolvimento em Ubuntu/Xubuntu/Linux Mint",
+  "bin": {
+    "linux-dev-setup": "bin/run.js"
+  },
+  "scripts": {
+    "test": "echo \"Testing installation script\" && bash test-detection.sh"
+  },
+  "keywords": [
+    "ubuntu",
+    "xubuntu",
+    "linux-mint",
+    "setup",
+    "development",
+    "docker",
+    "nodejs",
+    "zsh",
+    "developer-tools"
+  ],
+  "author": "Mario Paglia <mpagliajr@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mariopaglia/linux-dev-setup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mariopaglia/linux-dev-setup/issues"
+  },
+  "homepage": "https://github.com/mariopaglia/linux-dev-setup#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "os": [
+    "linux"
+  ],
+  "files": [
+    "bin/",
+    "xubuntu-dev-setup.sh",
+    "verify-installations.sh",
+    "README.md",
+    "LICENSE"
+  ]
+}

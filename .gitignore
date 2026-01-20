@@ -1,0 +1,24 @@
+# Backups
+*.backup.*
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+temp/
+
+# Downloads durante instalação
+*.deb
+packages.microsoft.gpg

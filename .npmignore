@@ -1,0 +1,16 @@
+# Documentação extra (já incluída no files do package.json)
+docs/
+START-HERE.txt
+GITHUB-UPLOAD.md
+
+# Arquivos de desenvolvimento
+.git/
+.gitignore
+*.log
+
+# Arquivos temporários
+tmp/
+temp/
+*.swp
+*.swo
+*~
