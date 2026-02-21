@@ -76,8 +76,21 @@ detect_distro() {
 
         # Linux Mint usa UBUNTU_CODENAME, Ubuntu usa VERSION_CODENAME
         if [ "$DISTRO_ID" = "linuxmint" ]; then
+            # Tentar /etc/linuxmint/info primeiro
             if [ -f /etc/linuxmint/info ]; then
-                UBUNTU_CODENAME=$(grep UBUNTU_CODENAME /etc/linuxmint/info | cut -d= -f2)
+                UBUNTU_CODENAME=$(grep "^UBUNTU_CODENAME" /etc/linuxmint/info | cut -d= -f2)
+            fi
+            # Fallback: UBUNTU_CODENAME do /etc/os-release (Linux Mint 21+)
+            if [ -z "$UBUNTU_CODENAME" ]; then
+                UBUNTU_CODENAME=$(grep "^UBUNTU_CODENAME" /etc/os-release | cut -d= -f2)
+            fi
+            # Último recurso: VERSION_CODENAME do /etc/os-release
+            if [ -z "$UBUNTU_CODENAME" ]; then
+                UBUNTU_CODENAME=${VERSION_CODENAME:-}
+            fi
+            if [ -z "$UBUNTU_CODENAME" ]; then
+                print_error "Não foi possível detectar o codename Ubuntu base do Linux Mint"
+                exit 1
             fi
             print_step "Detectado: Linux Mint (base Ubuntu $UBUNTU_CODENAME)"
         else
@@ -115,16 +128,17 @@ detect_distro
 # 1. ATUALIZAÇÃO DO SISTEMA
 ################################################################################
 
-print_step "1/15 - Atualizando o sistema..."
+print_step "1/19 - Atualizando o sistema..."
 sudo apt update
 sudo apt upgrade -y
+sudo apt install -y curl wget unzip git
 print_success "Sistema atualizado"
 
 ################################################################################
 # 2. INSTALAÇÃO DO ZSH
 ################################################################################
 
-print_step "2/15 - Instalando ZSH..."
+print_step "2/19 - Instalando ZSH..."
 if command_exists zsh; then
     print_warning "ZSH já instalado ($(zsh --version))"
 else
@@ -136,7 +150,7 @@ fi
 # 3. INSTALAÇÃO DAS FONTES (Meslo Nerd Font e FiraCode)
 ################################################################################
 
-print_step "3/17 - Instalando fontes para terminal..."
+print_step "3/19 - Instalando fontes para terminal..."
 
 # Criar diretório de fontes do usuário
 mkdir -p ~/.local/share/fonts
@@ -144,12 +158,11 @@ mkdir -p ~/.local/share/fonts
 # Instalar MesloLGS NF (recomendada pelo Powerlevel10k)
 if [ ! -f "$HOME/.local/share/fonts/MesloLGS NF Regular.ttf" ]; then
     echo "Baixando MesloLGS NF..."
-    cd /tmp
-    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf -o "MesloLGS NF Regular.ttf"
-    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf -o "MesloLGS NF Bold.ttf"
-    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf -o "MesloLGS NF Italic.ttf"
-    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf -o "MesloLGS NF Bold Italic.ttf"
-    mv "MesloLGS NF"*.ttf ~/.local/share/fonts/
+    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf -o "/tmp/MesloLGS NF Regular.ttf"
+    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf -o "/tmp/MesloLGS NF Bold.ttf"
+    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf -o "/tmp/MesloLGS NF Italic.ttf"
+    curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf -o "/tmp/MesloLGS NF Bold Italic.ttf"
+    mv /tmp/"MesloLGS NF"*.ttf ~/.local/share/fonts/
     print_success "MesloLGS NF instalada"
 else
     print_warning "MesloLGS NF já instalada"
@@ -159,11 +172,10 @@ fi
 if ! fc-list | grep -qi "FiraCode"; then
     echo "Baixando FiraCode Nerd Font..."
     FIRA_VERSION="3.2.1"
-    cd /tmp
-    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${FIRA_VERSION}/FiraCode.zip" -o FiraCode.zip
-    unzip -q -o FiraCode.zip -d FiraCode
-    mv FiraCode/*.ttf ~/.local/share/fonts/ 2>/dev/null || true
-    rm -rf FiraCode.zip FiraCode
+    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${FIRA_VERSION}/FiraCode.zip" -o /tmp/FiraCode.zip
+    unzip -q -o /tmp/FiraCode.zip -d /tmp/FiraCode
+    mv /tmp/FiraCode/*.ttf ~/.local/share/fonts/ 2>/dev/null || true
+    rm -rf /tmp/FiraCode.zip /tmp/FiraCode
     print_success "FiraCode Nerd Font instalada"
 else
     print_warning "FiraCode já instalada"
@@ -177,7 +189,7 @@ print_success "Fontes instaladas e cache atualizado"
 # 4. INSTALAÇÃO DO OH MY ZSH
 ################################################################################
 
-print_step "4/17 - Instalando Oh My ZSH..."
+print_step "4/19 - Instalando Oh My ZSH..."
 if [ -d "$HOME/.oh-my-zsh" ]; then
     print_warning "Oh My ZSH já instalado"
 else
@@ -189,7 +201,7 @@ fi
 # 5. INSTALAÇÃO DO POWERLEVEL10K
 ################################################################################
 
-print_step "5/17 - Instalando Powerlevel10k..."
+print_step "5/19 - Instalando Powerlevel10k..."
 P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
 if [ -d "$P10K_DIR" ]; then
     print_warning "Powerlevel10k já instalado"
@@ -202,7 +214,7 @@ fi
 # 6. INSTALAÇÃO DOS PLUGINS ZSH
 ################################################################################
 
-print_step "6/17 - Instalando plugins ZSH..."
+print_step "6/19 - Instalando plugins ZSH..."
 
 # zsh-autosuggestions
 AUTOSUGGESTIONS_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
@@ -226,7 +238,7 @@ fi
 # 7. CONFIGURAÇÃO DO .zshrc
 ################################################################################
 
-print_step "7/17 - Configurando .zshrc..."
+print_step "7/19 - Configurando .zshrc..."
 if [ -f "$HOME/.zshrc" ]; then
     # Fazer backup
     BACKUP_FILE="$HOME/.zshrc.backup.$(date +%Y%m%d_%H%M%S)"
@@ -270,7 +282,7 @@ fi
 # 8. DOWNLOAD DA CONFIGURAÇÃO DO POWERLEVEL10K
 ################################################################################
 
-print_step "8/17 - Baixando configuração do Powerlevel10k..."
+print_step "8/19 - Baixando configuração do Powerlevel10k..."
 if [ -f "$HOME/.p10k.zsh" ]; then
     BACKUP_FILE="$HOME/.p10k.zsh.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$HOME/.p10k.zsh" "$BACKUP_FILE"
@@ -284,7 +296,7 @@ print_success "Configuração do Powerlevel10k baixada"
 # 9. CONFIGURAÇÃO DO NPM GLOBAL PREFIX
 ################################################################################
 
-print_step "9/17 - Configurando npm global prefix..."
+print_step "9/19 - Configurando npm global prefix..."
 mkdir -p ~/.npm-global
 npm config set prefix '~/.npm-global'
 
@@ -303,7 +315,7 @@ export PATH=~/.npm-global/bin:$PATH
 # 10. CRIAÇÃO DO ARQUIVO .zshrc.custom
 ################################################################################
 
-print_step "10/17 - Criando .zshrc.custom..."
+print_step "10/19 - Criando .zshrc.custom..."
 cat > "$HOME/.zshrc.custom" << 'EOF'
 # Configurações customizadas do ZSH
 # Este arquivo é carregado automaticamente pelo .zshrc
@@ -387,7 +399,7 @@ print_success ".zshrc.custom criado"
 # 11. DOWNLOAD DO .gitconfig
 ################################################################################
 
-print_step "11/17 - Baixando .gitconfig personalizado..."
+print_step "11/19 - Baixando .gitconfig personalizado..."
 if [ -f "$HOME/.gitconfig" ]; then
     BACKUP_FILE="$HOME/.gitconfig.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$HOME/.gitconfig" "$BACKUP_FILE"
@@ -401,7 +413,7 @@ print_success ".gitconfig baixado e configurado"
 # 12. INSTALAÇÃO DO DOCKER
 ################################################################################
 
-print_step "12/17 - Instalando Docker..."
+print_step "12/19 - Instalando Docker..."
 if command_exists docker; then
     print_warning "Docker já instalado ($(docker --version))"
 else
@@ -413,13 +425,11 @@ else
 
     # Adicionar chave GPG do Docker
     sudo install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor | sudo tee /etc/apt/keyrings/docker.gpg > /dev/null
     sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
     # Adicionar repositório do Docker
-    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $UBUNTU_CODENAME stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $UBUNTU_CODENAME stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     # Instalar Docker
     sudo apt update
@@ -439,7 +449,7 @@ fi
 # 13. INSTALAÇÃO DO VS CODE
 ################################################################################
 
-print_step "13/17 - Instalando VS Code..."
+print_step "13/19 - Instalando VS Code..."
 if command_exists code; then
     print_warning "VS Code já instalado ($(code --version | head -1))"
 else
@@ -461,7 +471,7 @@ fi
 # 14. INSTALAÇÃO DO GOOGLE CHROME
 ################################################################################
 
-print_step "14/17 - Instalando Google Chrome..."
+print_step "14/19 - Instalando Google Chrome..."
 if command_exists google-chrome; then
     print_warning "Google Chrome já instalado ($(google-chrome --version))"
 else
@@ -475,7 +485,7 @@ fi
 # 15. INSTALAÇÃO DO DBEAVER
 ################################################################################
 
-print_step "15/17 - Instalando DBeaver Community..."
+print_step "15/19 - Instalando DBeaver Community..."
 
 # Verificar se já está instalado (Snap ou Flatpak)
 if snap_installed dbeaver-ce 2>/dev/null || flatpak list 2>/dev/null | grep -q dbeaver; then
@@ -500,10 +510,24 @@ else
 fi
 
 ################################################################################
-# 16. INSTALAÇÃO DE FERRAMENTAS NODE.JS
+# 16. INSTALAÇÃO DO NODE.JS
 ################################################################################
 
-print_step "16/17 - Instalando ferramentas Node.js globais..."
+print_step "16/19 - Instalando Node.js 22 LTS..."
+NODE_MAJOR=22
+if command_exists node && node --version | grep -q "^v${NODE_MAJOR}\."; then
+    print_warning "Node.js 22 já instalado ($(node --version))"
+else
+    curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | sudo -E bash -
+    sudo apt install -y nodejs
+    print_success "Node.js instalado ($(node --version))"
+fi
+
+################################################################################
+# 17. INSTALAÇÃO DE FERRAMENTAS NODE.JS
+################################################################################
+
+print_step "17/19 - Instalando ferramentas Node.js globais..."
 
 # pnpm
 if command_exists pnpm; then
@@ -557,7 +581,7 @@ fi
 # 17. CRIAÇÃO DA ESTRUTURA DE DIRETÓRIOS E DOCKER COMPOSE
 ################################################################################
 
-print_step "17/18 - Criando estrutura de diretórios..."
+print_step "18/19 - Criando estrutura de diretórios e Docker Compose..."
 mkdir -p ~/projetos
 
 if [ -f "$HOME/projetos/docker-compose.yml" ]; then
@@ -590,12 +614,15 @@ fi
 # 18. DEFINIR ZSH COMO SHELL PADRÃO
 ################################################################################
 
-print_step "18/18 - Definindo ZSH como shell padrão..."
+print_step "19/19 - Definindo ZSH como shell padrão..."
 if [ "$SHELL" = "$(which zsh)" ]; then
     print_warning "ZSH já é o shell padrão"
 else
     chsh -s "$(which zsh)"
-    print_success "ZSH definido como shell padrão (requer logout/login)"
+    print_success "ZSH definido como shell padrão"
+    print_warning "IMPORTANTE: Faça logout completo e login novamente (não apenas abrir novo terminal)"
+    print_warning "No Linux Mint, configure também o emulador de terminal:"
+    print_warning "  Clique direito no terminal → Preferences → Command → Run a custom command: zsh"
 fi
 
 ################################################################################
@@ -609,18 +636,18 @@ echo "======================================"
 echo ""
 echo -e "${YELLOW}PRÓXIMOS PASSOS IMPORTANTES:${NC}"
 echo ""
-echo "1. ${BLUE}Fazer LOGOUT e LOGIN novamente${NC} para aplicar:"
+echo -e "1. ${BLUE}Fazer LOGOUT e LOGIN novamente${NC} para aplicar:"
 echo "   - Grupo docker"
 echo "   - ZSH como shell padrão"
 echo ""
-echo "2. ${BLUE}Verificar instalações:${NC}"
+echo -e "2. ${BLUE}Verificar instalações:${NC}"
 echo "   bash ~/verify-installations.sh"
 echo ""
-echo "3. ${BLUE}Iniciar PostgreSQL:${NC}"
+echo -e "3. ${BLUE}Iniciar PostgreSQL:${NC}"
 echo "   cd ~/projetos && docker compose up -d"
 echo "   ou simplesmente: pgstart"
 echo ""
-echo "4. ${BLUE}Configurações baixadas:${NC}"
+echo -e "4. ${BLUE}Configurações baixadas:${NC}"
 echo "   ✓ .gitconfig (do seu gist)"
 echo "   ✓ .p10k.zsh (configuração Powerlevel10k)"
 echo "   ✓ .zshrc.custom (aliases e PATH)"
