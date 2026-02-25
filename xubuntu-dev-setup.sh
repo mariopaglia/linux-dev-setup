@@ -600,12 +600,24 @@ fi
 ################################################################################
 
 print_step "18/20 - Instalando Claude Code CLI..."
-if command_exists claude; then
-    print_warning "Claude Code CLI já instalado ($(claude --version 2>/dev/null | head -1))"
+if command_exists claude || [ -f "$HOME/.local/bin/claude" ]; then
+    print_warning "Claude Code CLI já instalado"
 else
+    # Desabilitar set -e temporariamente: o installer pode retornar código
+    # não-zero em contexto não-interativo mesmo tendo instalado com sucesso
+    set +e
     curl -fsSL https://claude.ai/install.sh | bash
-    print_success "Claude Code CLI instalado"
-    print_warning "Nota: Faça logout/login para garantir que ~/.local/bin está no PATH do ZSH"
+    CLAUDE_EXIT=$?
+    set -e
+
+    if [ -f "$HOME/.local/bin/claude" ]; then
+        print_success "Claude Code CLI instalado"
+        print_warning "Nota: Faça logout/login para garantir que ~/.local/bin está no PATH do ZSH"
+    else
+        print_warning "Não foi possível instalar o Claude Code CLI automaticamente"
+        print_warning "Instale manualmente após o setup:"
+        print_warning "  curl -fsSL https://claude.ai/install.sh | bash"
+    fi
 fi
 
 ################################################################################
