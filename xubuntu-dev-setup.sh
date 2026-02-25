@@ -21,7 +21,8 @@
 #
 # Uso:
 #   bash xubuntu-dev-setup.sh
-#   ou via npx: npx @SEU_USUARIO/linux-dev-setup
+#   ou em máquina nova (sem Node.js):
+#   bash <(curl -fsSL https://raw.githubusercontent.com/mariopaglia/linux-dev-setup/main/xubuntu-dev-setup.sh)
 ################################################################################
 
 set -e  # Parar em caso de erro
@@ -693,8 +694,10 @@ echo "  ✓ pnpm, yarn, TypeScript, NestJS CLI, Prisma, create-next-app"
 echo "  ✓ claude-config-sync"
 echo "  ✓ Claude Code CLI"
 echo ""
-echo -e "${BLUE}Para usar este script em outro computador:${NC}"
-echo "  curl -fsSL https://raw.githubusercontent.com/SEU_REPO/xubuntu-dev-setup.sh | bash"
+echo -e "${BLUE}Para usar este script em outro computador (máquina nova):${NC}"
+echo "  bash <(curl -fsSL https://raw.githubusercontent.com/mariopaglia/linux-dev-setup/main/xubuntu-dev-setup.sh)"
+echo ""
+echo -e "${YELLOW}  Não use npx em máquina nova — requer Node.js já instalado!${NC}"
 echo ""
 echo -e "${YELLOW}Não esqueça de fazer LOGOUT/LOGIN!${NC}"
 echo ""
