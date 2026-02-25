@@ -139,7 +139,7 @@ detect_distro
 # 1. ATUALIZAÇÃO DO SISTEMA
 ################################################################################
 
-print_step "1/20 - Atualizando o sistema..."
+print_step "1/21 - Atualizando o sistema..."
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y curl wget unzip git
@@ -149,7 +149,7 @@ print_success "Sistema atualizado"
 # 2. INSTALAÇÃO DO ZSH
 ################################################################################
 
-print_step "2/20 - Instalando ZSH..."
+print_step "2/21 - Instalando ZSH..."
 if command_exists zsh; then
     print_warning "ZSH já instalado ($(zsh --version))"
 else
@@ -161,7 +161,7 @@ fi
 # 3. INSTALAÇÃO DAS FONTES (Meslo Nerd Font e FiraCode)
 ################################################################################
 
-print_step "3/20 - Instalando fontes para terminal..."
+print_step "3/21 - Instalando fontes para terminal..."
 
 # Criar diretório de fontes do usuário
 mkdir -p ~/.local/share/fonts
@@ -200,7 +200,7 @@ print_success "Fontes instaladas e cache atualizado"
 # 4. INSTALAÇÃO DO OH MY ZSH
 ################################################################################
 
-print_step "4/20 - Instalando Oh My ZSH..."
+print_step "4/21 - Instalando Oh My ZSH..."
 if [ -d "$HOME/.oh-my-zsh" ]; then
     print_warning "Oh My ZSH já instalado"
 else
@@ -212,7 +212,7 @@ fi
 # 5. INSTALAÇÃO DO POWERLEVEL10K
 ################################################################################
 
-print_step "5/20 - Instalando Powerlevel10k..."
+print_step "5/21 - Instalando Powerlevel10k..."
 P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
 if [ -d "$P10K_DIR" ]; then
     print_warning "Powerlevel10k já instalado"
@@ -225,7 +225,7 @@ fi
 # 6. INSTALAÇÃO DOS PLUGINS ZSH
 ################################################################################
 
-print_step "6/20 - Instalando plugins ZSH..."
+print_step "6/21 - Instalando plugins ZSH..."
 
 # zsh-autosuggestions
 AUTOSUGGESTIONS_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
@@ -249,7 +249,7 @@ fi
 # 7. CONFIGURAÇÃO DO .zshrc
 ################################################################################
 
-print_step "7/20 - Configurando .zshrc..."
+print_step "7/21 - Configurando .zshrc..."
 if [ -f "$HOME/.zshrc" ]; then
     # Fazer backup
     BACKUP_FILE="$HOME/.zshrc.backup.$(date +%Y%m%d_%H%M%S)"
@@ -282,7 +282,7 @@ fi
 # 8. DOWNLOAD DA CONFIGURAÇÃO DO POWERLEVEL10K
 ################################################################################
 
-print_step "8/20 - Baixando configuração do Powerlevel10k..."
+print_step "8/21 - Baixando configuração do Powerlevel10k..."
 if [ -f "$HOME/.p10k.zsh" ]; then
     BACKUP_FILE="$HOME/.p10k.zsh.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$HOME/.p10k.zsh" "$BACKUP_FILE"
@@ -297,7 +297,7 @@ print_success "Configuração do Powerlevel10k baixada"
 # IMPORTANTE: Deve vir ANTES da configuração do npm global prefix (passo 10)
 ################################################################################
 
-print_step "9/20 - Instalando Node.js 22 LTS..."
+print_step "9/21 - Instalando Node.js 22 LTS..."
 NODE_MAJOR=22
 if command_exists node && node --version | grep -q "^v${NODE_MAJOR}\."; then
     print_warning "Node.js 22 já instalado ($(node --version))"
@@ -311,7 +311,7 @@ fi
 # 10. CONFIGURAÇÃO DO NPM GLOBAL PREFIX
 ################################################################################
 
-print_step "10/20 - Configurando npm global prefix..."
+print_step "10/21 - Configurando npm global prefix..."
 mkdir -p ~/.npm-global
 npm config set prefix '~/.npm-global'
 
@@ -330,7 +330,7 @@ export PATH=~/.npm-global/bin:$PATH
 # 11. CONFIGURAÇÕES PERSONALIZADAS NO .zshrc
 ################################################################################
 
-print_step "11/20 - Adicionando configurações personalizadas ao .zshrc..."
+print_step "11/21 - Adicionando configurações personalizadas ao .zshrc..."
 
 # Usar marcador para garantir idempotência (não duplicar se rodar novamente)
 if grep -q "# === CONFIG PESSOAL ===" "$HOME/.zshrc" 2>/dev/null; then
@@ -422,7 +422,7 @@ fi
 # 12. DOWNLOAD DO .gitconfig
 ################################################################################
 
-print_step "12/20 - Baixando .gitconfig personalizado..."
+print_step "12/21 - Baixando .gitconfig personalizado..."
 if [ -f "$HOME/.gitconfig" ]; then
     BACKUP_FILE="$HOME/.gitconfig.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$HOME/.gitconfig" "$BACKUP_FILE"
@@ -436,7 +436,7 @@ print_success ".gitconfig baixado e configurado"
 # 13. INSTALAÇÃO DO DOCKER
 ################################################################################
 
-print_step "13/20 - Instalando Docker..."
+print_step "13/21 - Instalando Docker..."
 if command_exists docker; then
     print_warning "Docker já instalado ($(docker --version))"
 else
@@ -472,7 +472,7 @@ fi
 # 14. INSTALAÇÃO DO VS CODE
 ################################################################################
 
-print_step "14/20 - Instalando VS Code..."
+print_step "14/21 - Instalando VS Code..."
 if command_exists code; then
     print_warning "VS Code já instalado ($(code --version | head -1))"
 else
@@ -494,7 +494,7 @@ fi
 # 15. INSTALAÇÃO DO GOOGLE CHROME
 ################################################################################
 
-print_step "15/20 - Instalando Google Chrome..."
+print_step "15/21 - Instalando Google Chrome..."
 if command_exists google-chrome; then
     print_warning "Google Chrome já instalado ($(google-chrome --version))"
 else
@@ -508,7 +508,7 @@ fi
 # 16. INSTALAÇÃO DO DBEAVER
 ################################################################################
 
-print_step "16/20 - Instalando DBeaver Community..."
+print_step "16/21 - Instalando DBeaver Community..."
 
 # Verificar se já está instalado (Flatpak ou Snap)
 if flatpak list 2>/dev/null | grep -q dbeaver || snap_installed dbeaver-ce 2>/dev/null; then
@@ -534,10 +534,56 @@ else
 fi
 
 ################################################################################
-# 17. INSTALAÇÃO DE FERRAMENTAS NODE.JS
+# 17. INSTALAÇÃO DO GHOSTTY
 ################################################################################
 
-print_step "17/20 - Instalando ferramentas Node.js globais..."
+print_step "17/21 - Instalando Ghostty..."
+if command_exists ghostty; then
+    print_warning "Ghostty já instalado ($(ghostty --version 2>/dev/null | head -1))"
+else
+    set +e
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+    set -e
+
+    if command_exists ghostty; then
+        print_success "Ghostty instalado"
+    else
+        print_warning "Não foi possível instalar o Ghostty automaticamente"
+        print_warning "Instale manualmente: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)\""
+    fi
+fi
+
+# Criar configuração do Ghostty
+mkdir -p "$HOME/.config/ghostty"
+if [ -f "$HOME/.config/ghostty/config" ]; then
+    print_warning "Configuração do Ghostty já existe"
+else
+    cat > "$HOME/.config/ghostty/config" << 'EOF'
+# Shell padrão
+command = /usr/bin/zsh
+
+# Tamanho da janela (colunas x linhas)
+window-width = 150
+window-height = 50
+EOF
+    print_success "Configuração do Ghostty criada (150x50, ZSH)"
+fi
+
+# Configurar Ghostty como terminal padrão no Cinnamon (Ctrl+Alt+T)
+if command_exists gsettings; then
+    gsettings set org.cinnamon.desktop.default-applications.terminal exec 'ghostty' 2>/dev/null || true
+    gsettings set org.cinnamon.desktop.default-applications.terminal exec-arg '' 2>/dev/null || true
+    gsettings set org.cinnamon.desktop.keybindings.media-keys terminal "['<Primary><Alt>t']" 2>/dev/null || true
+    print_success "Ghostty definido como terminal padrão (Ctrl+Alt+T)"
+else
+    print_warning "gsettings não disponível — configure o terminal padrão manualmente nas preferências do sistema"
+fi
+
+################################################################################
+# 18. INSTALAÇÃO DE FERRAMENTAS NODE.JS
+################################################################################
+
+print_step "18/21 - Instalando ferramentas Node.js globais..."
 
 # pnpm
 if command_exists pnpm; then
@@ -599,7 +645,7 @@ fi
 # 18. INSTALAÇÃO DO CLAUDE CODE CLI
 ################################################################################
 
-print_step "18/20 - Instalando Claude Code CLI..."
+print_step "19/21 - Instalando Claude Code CLI..."
 if command_exists claude || [ -f "$HOME/.local/bin/claude" ]; then
     print_warning "Claude Code CLI já instalado"
 else
@@ -624,7 +670,7 @@ fi
 # 19. CRIAÇÃO DA ESTRUTURA DE DIRETÓRIOS E DOCKER COMPOSE
 ################################################################################
 
-print_step "19/20 - Criando estrutura de diretórios e Docker Compose..."
+print_step "20/21 - Criando estrutura de diretórios e Docker Compose..."
 mkdir -p ~/projetos
 
 if [ -f "$HOME/projetos/docker-compose.yml" ]; then
@@ -657,15 +703,13 @@ fi
 # 20. DEFINIR ZSH COMO SHELL PADRÃO
 ################################################################################
 
-print_step "20/20 - Definindo ZSH como shell padrão..."
+print_step "21/21 - Definindo ZSH como shell padrão..."
 if [ "$SHELL" = "$(which zsh)" ]; then
     print_warning "ZSH já é o shell padrão"
 else
-    chsh -s "$(which zsh)"
+    sudo usermod -s "$(which zsh)" "$USER"
     print_success "ZSH definido como shell padrão"
-    print_warning "IMPORTANTE: Faça logout completo e login novamente (não apenas abrir novo terminal)"
-    print_warning "No Linux Mint, configure também o emulador de terminal:"
-    print_warning "  Clique direito no terminal → Preferences → Command → Run a custom command: zsh"
+    print_warning "IMPORTANTE: Faça logout completo e login novamente para ativar o ZSH"
 fi
 
 ################################################################################
@@ -696,7 +740,8 @@ echo "   ✓ .p10k.zsh (configuração Powerlevel10k)"
 echo "   ✓ .zshrc (aliases, PATH e configurações pessoais)"
 echo ""
 echo -e "${GREEN}Ferramentas instaladas:${NC}"
-echo "  ✓ ZSH + Oh My ZSH + Powerlevel10k"
+echo "  ✓ ZSH + Oh My ZSH + Powerlevel10k (shell padrão)"
+echo "  ✓ Ghostty (terminal padrão, 150x50, Ctrl+Alt+T)"
 echo "  ✓ Docker + Docker Compose"
 echo "  ✓ VS Code"
 echo "  ✓ Google Chrome"

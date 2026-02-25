@@ -1,6 +1,6 @@
 {
   "name": "@mariopaglia/linux-dev-setup",
-  "version": "3.2.4",
+  "version": "3.3.0",
   "description": "Script automatizado para configurar ambiente de desenvolvimento em Ubuntu/Xubuntu/Linux Mint",
   "bin": {
     "linux-dev-setup": "bin/run.js"
