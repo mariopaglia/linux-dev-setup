@@ -3,7 +3,7 @@
 ################################################################################
 # Script de Configuração Completa do Ambiente de Desenvolvimento Linux
 # Autor: Claude Code / Mario Paglia
-# Versão: 3.0 - Universal Edition
+# Versão: 3.1 - Universal Edition
 #
 # Compatível com:
 # - Ubuntu 24.04+ / Xubuntu 24.04+
@@ -15,6 +15,7 @@
 # - Instalar ZSH, Oh My ZSH, Powerlevel10k
 # - Instalar Docker, VS Code, Chrome, DBeaver
 # - Instalar ferramentas Node.js (pnpm, yarn, TypeScript, NestJS, Prisma)
+# - Instalar Claude Code CLI
 # - Baixar configurações personalizadas (.gitconfig, .p10k.zsh)
 # - Configurar ambiente completo de desenvolvimento
 #
@@ -128,7 +129,7 @@ detect_distro
 # 1. ATUALIZAÇÃO DO SISTEMA
 ################################################################################
 
-print_step "1/19 - Atualizando o sistema..."
+print_step "1/20 - Atualizando o sistema..."
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y curl wget unzip git
@@ -138,7 +139,7 @@ print_success "Sistema atualizado"
 # 2. INSTALAÇÃO DO ZSH
 ################################################################################
 
-print_step "2/19 - Instalando ZSH..."
+print_step "2/20 - Instalando ZSH..."
 if command_exists zsh; then
     print_warning "ZSH já instalado ($(zsh --version))"
 else
@@ -150,7 +151,7 @@ fi
 # 3. INSTALAÇÃO DAS FONTES (Meslo Nerd Font e FiraCode)
 ################################################################################
 
-print_step "3/19 - Instalando fontes para terminal..."
+print_step "3/20 - Instalando fontes para terminal..."
 
 # Criar diretório de fontes do usuário
 mkdir -p ~/.local/share/fonts
@@ -189,7 +190,7 @@ print_success "Fontes instaladas e cache atualizado"
 # 4. INSTALAÇÃO DO OH MY ZSH
 ################################################################################
 
-print_step "4/19 - Instalando Oh My ZSH..."
+print_step "4/20 - Instalando Oh My ZSH..."
 if [ -d "$HOME/.oh-my-zsh" ]; then
     print_warning "Oh My ZSH já instalado"
 else
@@ -201,7 +202,7 @@ fi
 # 5. INSTALAÇÃO DO POWERLEVEL10K
 ################################################################################
 
-print_step "5/19 - Instalando Powerlevel10k..."
+print_step "5/20 - Instalando Powerlevel10k..."
 P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
 if [ -d "$P10K_DIR" ]; then
     print_warning "Powerlevel10k já instalado"
@@ -214,7 +215,7 @@ fi
 # 6. INSTALAÇÃO DOS PLUGINS ZSH
 ################################################################################
 
-print_step "6/19 - Instalando plugins ZSH..."
+print_step "6/20 - Instalando plugins ZSH..."
 
 # zsh-autosuggestions
 AUTOSUGGESTIONS_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
@@ -238,7 +239,7 @@ fi
 # 7. CONFIGURAÇÃO DO .zshrc
 ################################################################################
 
-print_step "7/19 - Configurando .zshrc..."
+print_step "7/20 - Configurando .zshrc..."
 if [ -f "$HOME/.zshrc" ]; then
     # Fazer backup
     BACKUP_FILE="$HOME/.zshrc.backup.$(date +%Y%m%d_%H%M%S)"
@@ -250,17 +251,6 @@ if [ -f "$HOME/.zshrc" ]; then
 
     # Atualizar plugins
     sed -i 's/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting node npm docker)/' "$HOME/.zshrc"
-
-    # Adicionar source do .zshrc.custom se não existir
-    if ! grep -q ".zshrc.custom" "$HOME/.zshrc"; then
-        cat >> "$HOME/.zshrc" << 'EOF'
-
-# Configurações customizadas
-if [ -f ~/.zshrc.custom ]; then
-    source ~/.zshrc.custom
-fi
-EOF
-    fi
 
     # Adicionar source do .p10k.zsh se não existir
     if ! grep -q ".p10k.zsh" "$HOME/.zshrc"; then
@@ -282,7 +272,7 @@ fi
 # 8. DOWNLOAD DA CONFIGURAÇÃO DO POWERLEVEL10K
 ################################################################################
 
-print_step "8/19 - Baixando configuração do Powerlevel10k..."
+print_step "8/20 - Baixando configuração do Powerlevel10k..."
 if [ -f "$HOME/.p10k.zsh" ]; then
     BACKUP_FILE="$HOME/.p10k.zsh.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$HOME/.p10k.zsh" "$BACKUP_FILE"
@@ -293,10 +283,25 @@ curl -fsSL "$P10K_URL" -o "$HOME/.p10k.zsh"
 print_success "Configuração do Powerlevel10k baixada"
 
 ################################################################################
-# 9. CONFIGURAÇÃO DO NPM GLOBAL PREFIX
+# 9. INSTALAÇÃO DO NODE.JS
+# IMPORTANTE: Deve vir ANTES da configuração do npm global prefix (passo 10)
 ################################################################################
 
-print_step "9/19 - Configurando npm global prefix..."
+print_step "9/20 - Instalando Node.js 22 LTS..."
+NODE_MAJOR=22
+if command_exists node && node --version | grep -q "^v${NODE_MAJOR}\."; then
+    print_warning "Node.js 22 já instalado ($(node --version))"
+else
+    curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | sudo -E bash -
+    sudo apt install -y nodejs
+    print_success "Node.js instalado ($(node --version))"
+fi
+
+################################################################################
+# 10. CONFIGURAÇÃO DO NPM GLOBAL PREFIX
+################################################################################
+
+print_step "10/20 - Configurando npm global prefix..."
 mkdir -p ~/.npm-global
 npm config set prefix '~/.npm-global'
 
@@ -312,16 +317,24 @@ fi
 export PATH=~/.npm-global/bin:$PATH
 
 ################################################################################
-# 10. CRIAÇÃO DO ARQUIVO .zshrc.custom
+# 11. CONFIGURAÇÕES PERSONALIZADAS NO .zshrc
 ################################################################################
 
-print_step "10/19 - Criando .zshrc.custom..."
-cat > "$HOME/.zshrc.custom" << 'EOF'
-# Configurações customizadas do ZSH
-# Este arquivo é carregado automaticamente pelo .zshrc
+print_step "11/20 - Adicionando configurações personalizadas ao .zshrc..."
 
-# NPM Global Path (para comandos instalados globalmente como claude, nest, etc)
+# Usar marcador para garantir idempotência (não duplicar se rodar novamente)
+if grep -q "# === CONFIG PESSOAL ===" "$HOME/.zshrc" 2>/dev/null; then
+    print_warning "Configurações personalizadas já presentes no .zshrc"
+else
+    cat >> "$HOME/.zshrc" << 'EOF'
+
+# === CONFIG PESSOAL ===
+
+# NPM Global Path (para comandos instalados globalmente como nest, prisma, etc)
 export PATH=~/.npm-global/bin:$PATH
+
+# Local bin (para Claude Code CLI e outros binários instalados localmente)
+export PATH="$HOME/.local/bin:$PATH"
 
 # Aliases úteis - Git
 alias ll='ls -lah'
@@ -392,14 +405,14 @@ alias prisma-generate='prisma generate'
 alias c='clear'
 alias cl='clear'
 EOF
-
-print_success ".zshrc.custom criado"
+    print_success "Configurações adicionadas ao .zshrc"
+fi
 
 ################################################################################
-# 11. DOWNLOAD DO .gitconfig
+# 12. DOWNLOAD DO .gitconfig
 ################################################################################
 
-print_step "11/19 - Baixando .gitconfig personalizado..."
+print_step "12/20 - Baixando .gitconfig personalizado..."
 if [ -f "$HOME/.gitconfig" ]; then
     BACKUP_FILE="$HOME/.gitconfig.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$HOME/.gitconfig" "$BACKUP_FILE"
@@ -410,10 +423,10 @@ curl -fsSL "$GITCONFIG_URL" -o "$HOME/.gitconfig"
 print_success ".gitconfig baixado e configurado"
 
 ################################################################################
-# 12. INSTALAÇÃO DO DOCKER
+# 13. INSTALAÇÃO DO DOCKER
 ################################################################################
 
-print_step "12/19 - Instalando Docker..."
+print_step "13/20 - Instalando Docker..."
 if command_exists docker; then
     print_warning "Docker já instalado ($(docker --version))"
 else
@@ -446,10 +459,10 @@ else
 fi
 
 ################################################################################
-# 13. INSTALAÇÃO DO VS CODE
+# 14. INSTALAÇÃO DO VS CODE
 ################################################################################
 
-print_step "13/19 - Instalando VS Code..."
+print_step "14/20 - Instalando VS Code..."
 if command_exists code; then
     print_warning "VS Code já instalado ($(code --version | head -1))"
 else
@@ -468,10 +481,10 @@ else
 fi
 
 ################################################################################
-# 14. INSTALAÇÃO DO GOOGLE CHROME
+# 15. INSTALAÇÃO DO GOOGLE CHROME
 ################################################################################
 
-print_step "14/19 - Instalando Google Chrome..."
+print_step "15/20 - Instalando Google Chrome..."
 if command_exists google-chrome; then
     print_warning "Google Chrome já instalado ($(google-chrome --version))"
 else
@@ -482,52 +495,39 @@ else
 fi
 
 ################################################################################
-# 15. INSTALAÇÃO DO DBEAVER
+# 16. INSTALAÇÃO DO DBEAVER
 ################################################################################
 
-print_step "15/19 - Instalando DBeaver Community..."
+print_step "16/20 - Instalando DBeaver Community..."
 
-# Verificar se já está instalado (Snap ou Flatpak)
-if snap_installed dbeaver-ce 2>/dev/null || flatpak list 2>/dev/null | grep -q dbeaver; then
+# Verificar se já está instalado (Flatpak ou Snap)
+if flatpak list 2>/dev/null | grep -q dbeaver || snap_installed dbeaver-ce 2>/dev/null; then
     print_warning "DBeaver já instalado"
 else
-    # Tentar instalar via Snap primeiro
-    if command_exists snap; then
-        sudo snap install dbeaver-ce --classic
-        print_success "DBeaver Community instalado via Snap"
-    # Se Snap não disponível, tentar Flatpak
-    elif command_exists flatpak; then
+    # Linux Mint usa Flatpak por padrão (Snap não está disponível)
+    if command_exists flatpak; then
+        # Garantir que o remote Flathub está configurado
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo --system 2>/dev/null || true
         flatpak install -y flathub io.dbeaver.DBeaverCommunity
         print_success "DBeaver Community instalado via Flatpak"
-    # Se nenhum disponível, oferecer instalar Snap
-    else
-        print_warning "Snap não encontrado. Instalando Snap..."
-        sudo apt install snapd -y
-        sudo systemctl enable --now snapd
+    elif command_exists snap; then
         sudo snap install dbeaver-ce --classic
         print_success "DBeaver Community instalado via Snap"
+    else
+        # Instalar Flatpak e tentar novamente
+        print_warning "Flatpak não encontrado. Instalando Flatpak..."
+        sudo apt install flatpak -y
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo --system 2>/dev/null || true
+        flatpak install -y flathub io.dbeaver.DBeaverCommunity
+        print_success "DBeaver Community instalado via Flatpak"
     fi
-fi
-
-################################################################################
-# 16. INSTALAÇÃO DO NODE.JS
-################################################################################
-
-print_step "16/19 - Instalando Node.js 22 LTS..."
-NODE_MAJOR=22
-if command_exists node && node --version | grep -q "^v${NODE_MAJOR}\."; then
-    print_warning "Node.js 22 já instalado ($(node --version))"
-else
-    curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | sudo -E bash -
-    sudo apt install -y nodejs
-    print_success "Node.js instalado ($(node --version))"
 fi
 
 ################################################################################
 # 17. INSTALAÇÃO DE FERRAMENTAS NODE.JS
 ################################################################################
 
-print_step "17/19 - Instalando ferramentas Node.js globais..."
+print_step "17/20 - Instalando ferramentas Node.js globais..."
 
 # pnpm
 if command_exists pnpm; then
@@ -562,7 +562,7 @@ else
 fi
 
 # Prisma
-if [ -f "$HOME/.npm-global/bin/prisma" ]; then
+if command_exists prisma; then
     print_warning "Prisma já instalado"
 else
     npm install -g prisma
@@ -570,18 +570,39 @@ else
 fi
 
 # create-next-app
-if [ -f "$HOME/.npm-global/bin/create-next-app" ]; then
+if command_exists create-next-app; then
     print_warning "create-next-app já instalado"
 else
     npm install -g create-next-app
     print_success "create-next-app instalado"
 fi
 
+# claude-config-sync
+if command_exists claude-config-sync; then
+    print_warning "claude-config-sync já instalado"
+else
+    npm install -g claude-config-sync
+    print_success "claude-config-sync instalado"
+fi
+
 ################################################################################
-# 17. CRIAÇÃO DA ESTRUTURA DE DIRETÓRIOS E DOCKER COMPOSE
+# 18. INSTALAÇÃO DO CLAUDE CODE CLI
 ################################################################################
 
-print_step "18/19 - Criando estrutura de diretórios e Docker Compose..."
+print_step "18/20 - Instalando Claude Code CLI..."
+if command_exists claude; then
+    print_warning "Claude Code CLI já instalado ($(claude --version 2>/dev/null | head -1))"
+else
+    curl -fsSL https://claude.ai/install.sh | sh
+    print_success "Claude Code CLI instalado"
+    print_warning "Nota: Faça logout/login para garantir que ~/.local/bin está no PATH do ZSH"
+fi
+
+################################################################################
+# 19. CRIAÇÃO DA ESTRUTURA DE DIRETÓRIOS E DOCKER COMPOSE
+################################################################################
+
+print_step "19/20 - Criando estrutura de diretórios e Docker Compose..."
 mkdir -p ~/projetos
 
 if [ -f "$HOME/projetos/docker-compose.yml" ]; then
@@ -611,10 +632,10 @@ EOF
 fi
 
 ################################################################################
-# 18. DEFINIR ZSH COMO SHELL PADRÃO
+# 20. DEFINIR ZSH COMO SHELL PADRÃO
 ################################################################################
 
-print_step "19/19 - Definindo ZSH como shell padrão..."
+print_step "20/20 - Definindo ZSH como shell padrão..."
 if [ "$SHELL" = "$(which zsh)" ]; then
     print_warning "ZSH já é o shell padrão"
 else
@@ -650,7 +671,7 @@ echo ""
 echo -e "4. ${BLUE}Configurações baixadas:${NC}"
 echo "   ✓ .gitconfig (do seu gist)"
 echo "   ✓ .p10k.zsh (configuração Powerlevel10k)"
-echo "   ✓ .zshrc.custom (aliases e PATH)"
+echo "   ✓ .zshrc (aliases, PATH e configurações pessoais)"
 echo ""
 echo -e "${GREEN}Ferramentas instaladas:${NC}"
 echo "  ✓ ZSH + Oh My ZSH + Powerlevel10k"
@@ -658,7 +679,10 @@ echo "  ✓ Docker + Docker Compose"
 echo "  ✓ VS Code"
 echo "  ✓ Google Chrome"
 echo "  ✓ DBeaver Community"
-echo "  ✓ pnpm, yarn, TypeScript, NestJS CLI, Prisma"
+echo "  ✓ Node.js 22 LTS"
+echo "  ✓ pnpm, yarn, TypeScript, NestJS CLI, Prisma, create-next-app"
+echo "  ✓ claude-config-sync"
+echo "  ✓ Claude Code CLI"
 echo ""
 echo -e "${BLUE}Para usar este script em outro computador:${NC}"
 echo "  curl -fsSL https://raw.githubusercontent.com/SEU_REPO/xubuntu-dev-setup.sh | bash"

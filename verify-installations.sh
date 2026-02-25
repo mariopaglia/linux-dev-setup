@@ -36,6 +36,7 @@ echo "Aplicativos:"
 check_command "code" "--version"
 check_command "google-chrome" "--version"
 check_command "zsh" "--version"
+check_command "claude" "--version"
 echo ""
 
 # Ferramentas de desenvolvimento
@@ -43,12 +44,17 @@ echo "Ferramentas de Desenvolvimento:"
 check_command "tsc" "--version"
 check_command "nest" "--version"
 check_command "prisma" "--version"
+check_command "create-next-app" "--version"
+check_command "claude-config-sync" "--version"
 echo ""
 
-# DBeaver
+# DBeaver (Flatpak ou Snap)
 echo "DBeaver:"
-if snap list | grep -q dbeaver-ce; then
-    echo "✓ dbeaver-ce: $(snap list dbeaver-ce | tail -1 | awk '{print $2}')"
+if flatpak list 2>/dev/null | grep -q "io.dbeaver.DBeaverCommunity"; then
+    DBEAVER_VER=$(flatpak list 2>/dev/null | grep "io.dbeaver.DBeaverCommunity" | awk '{print $3}')
+    echo "✓ dbeaver-ce: $DBEAVER_VER (Flatpak)"
+elif snap list 2>/dev/null | grep -q dbeaver-ce; then
+    echo "✓ dbeaver-ce: $(snap list dbeaver-ce | tail -1 | awk '{print $2}') (Snap)"
 else
     echo "✗ dbeaver-ce: não encontrado"
 fi
