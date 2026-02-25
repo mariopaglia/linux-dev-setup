@@ -602,7 +602,7 @@ print_step "18/20 - Instalando Claude Code CLI..."
 if command_exists claude; then
     print_warning "Claude Code CLI já instalado ($(claude --version 2>/dev/null | head -1))"
 else
-    curl -fsSL https://claude.ai/install.sh | sh
+    curl -fsSL https://claude.ai/install.sh | bash
     print_success "Claude Code CLI instalado"
     print_warning "Nota: Faça logout/login para garantir que ~/.local/bin está no PATH do ZSH"
 fi
