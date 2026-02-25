@@ -112,6 +112,15 @@ echo "======================================"
 echo "  Configuração do Ambiente Xubuntu   "
 echo "======================================"
 echo ""
+
+# Verificar se está rodando como root
+if [ "$EUID" -eq 0 ]; then
+    print_error "Não execute este script como root ou com sudo!"
+    print_error "Execute apenas como usuário normal: bash xubuntu-dev-setup.sh"
+    print_error "O script pedirá sua senha sudo quando necessário."
+    exit 1
+fi
+
 echo "Este script irá configurar seu ambiente de desenvolvimento completo."
 echo "Algumas operações podem solicitar sua senha sudo."
 echo ""
